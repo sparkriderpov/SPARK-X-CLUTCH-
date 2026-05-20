@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPARK X CLUTCH | Free Fire Sensitivity</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet" />
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    /* =============================================
+       CSS VARIABLES & RESET
+    ============================================= */
+    :root {
+      --black:       #060404;
+      --deep-black:  #0d0808;
+      --crimson:     #8b0000;
+      --red:         #a01010;
+      --neon-red:    #b31010;
+      --neon-glow:   rgba(160, 10, 10, 0.45);
+      --manga-white: #ede5d8;
+      --text-dim:    #8a8070;
+      --card-bg:     rgba(8, 2, 2, 0.88);
+      --border:      rgba(100, 0, 0, 0.35);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      background: var(--black);
+      color: var(--manga-white);
+      font-family: 'Rajdhani', sans-serif;
+      overflow-x: hidden;
+      cursor: crosshair;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--black); }
+    ::-webkit-scrollbar-thumb { background: var(--crimson); border-radius: 2px; }
+
+    /* =============================================
+       GLOBAL BACKGROUND — Manga Art Image
+    ============================================= */
+
+    /* Layer 1: Your manga/Akatsuki artwork — fixed, covers full screen */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        url('bg.png') no-repeat center center / cover;
+      opacity: 0.22;          /* 22% — readable but atmospheric */
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Layer 2: Manga panel grid lines + dark wash on top of image */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        /* manga panel grid */
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 119px,
+          rgba(180,0,0,0.08) 120px
+        ),
+        repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 119px,
+          rgba(180,0,0,0.05) 120px
+        ),
+        /* dark wash so text stays readable */
+        linear-gradient(180deg,
+          rgba(5,5,5,0.78) 0%,
+          rgba(5,5,5,0.65) 40%,
+          rgba(5,5,5,0.78) 100%
+        );
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Side art div — no longer needed, keep empty */
+    .side-art { display: none; }
+
+    /* Cinematic vignette — edges darken */
+    .vignette {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.82) 100%);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* =============================================
+       PARTICLES CANVAS
+    ============================================= */
+    #particles-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    /* =============================================
+       NAVIGATION
+    ============================================= */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 5%;
+      height: 64px;
+      background: rgba(5,5,5,0.92);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+    }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 1.6rem;
+      letter-spacing: 3px;
+      color: var(--neon-red);
+    }
+
+    .nav-logo span { color: var(--manga-white); }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.25s, text-shadow 0.25s;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background: var(--neon-red);
+      box-shadow: 0 0 6px var(--neon-glow);
+      transition: width 0.3s;
+    }
+
+    .nav-links a:hover { color: var(--neon-red); }
+    .nav-links a:hover::after { width: 100%; }
+
+    /* Hamburger */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 26px;
+      height: 2px;
+      background: var(--neon-red);
+      box-shadow: 0 0 6px var(--neon-glow);
+      transition: all 0.3s;
+    }
+
+    .hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+    /* Mobile menu */
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 64px;
+      left: 0;
+      right: 0;
+      background: rgba(5,5,5,0.97);
+      border-bottom: 1px solid var(--border);
+      z-index: 99;
+      padding: 1.5rem;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .mobile-menu.open { display: flex; }
+
+    .mobile-menu a {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.8rem;
+      letter-spacing: 3px;
+      color: var(--text-dim);
+      text-decoration: none;
+      text-transform: uppercase;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+      transition: color 0.2s;
+    }
+
+    .mobile-menu a:hover { color: var(--neon-red); }
+
+    /* Music Toggle */
+    .music-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      transition: all 0.3s;
+      flex-shrink: 0;
+    }
+
+    .music-btn:hover,
+    .music-btn.playing {
+      border-color: var(--neon-red);
+      color: var(--neon-red);
+    }
+
+    .music-btn.playing { animation: pulse-ring 2s infinite; }
+
+    @keyframes pulse-ring {
+      0%, 100% { border-color: var(--crimson); }
+      50% { border-color: var(--neon-red); }
+    }
+
+    /* =============================================
+       HERO SECTION
+    ============================================= */
+    #home {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 0 6%;
+      z-index: 10;
+      overflow: hidden;
+    }
+
+    /* Speed lines behind hero text */
+    .speed-lines {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .speed-lines::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: -200px;
+      right: -200px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, rgba(139,0,0,0.3) 30%, var(--neon-red) 50%, rgba(139,0,0,0.3) 70%, transparent 100%);
+      animation: speedline 3s linear infinite;
+      transform: translateY(-50%);
+    }
+
+    @keyframes speedline {
+      0% { transform: translateY(calc(-50% - 120px)); opacity: 0; }
+      20% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { transform: translateY(calc(-50% + 120px)); opacity: 0; }
+    }
+
+    .hero-bg-glow {
+      position: absolute;
+      left: -10%;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 60vw;
+      height: 80vh;
+      background: radial-gradient(ellipse at center, rgba(139,0,0,0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 5;
+      max-width: 700px;
+    }
+
+    .hero-tag {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 4px;
+      color: var(--neon-red);
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards 0.3s;
+    }
+
+    .hero-title {
+      font-family: 'Bebas Neue', cursive;
+      font-size: clamp(3.5rem, 9vw, 8rem);
+      line-height: 0.9;
+      letter-spacing: 4px;
+      color: var(--manga-white);
+      text-transform: uppercase;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.5s;
+    }
+
+    .hero-title .highlight {
+      display: block;
+      color: var(--neon-red);
+      -webkit-text-stroke: 1px rgba(180,20,20,0.4);
+    }
+
+    .hero-sub {
+      margin-top: 1.5rem;
+      font-size: 1rem;
+      line-height: 1.7;
+      color: var(--text-dim);
+      max-width: 480px;
+      font-weight: 500;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.75s;
+    }
+
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-top: 2.5rem;
+      padding: 0.9rem 2.2rem;
+      background: transparent;
+      border: 1px solid var(--neon-red);
+      color: var(--neon-red);
+      font-family: 'Orbitron', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 1s;
+    }
+
+    .hero-cta::before {
+      content: '';
+      position: absolute;
+      left: -100%;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+      background: var(--crimson);
+      transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .hero-cta:hover::before { left: 0; }
+    .hero-cta:hover { color: var(--manga-white); }
+    .hero-cta span { position: relative; z-index: 1; }
+
+    .hero-stats {
+      display: flex;
+      gap: 2.5rem;
+      margin-top: 3rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 1.2s;
+    }
+
+    .stat {
+      border-left: 2px solid var(--crimson);
+      padding-left: 1rem;
+    }
+
+    .stat-val {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 1.8rem;
+      color: var(--neon-red);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.65rem;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* =============================================
+       SECTION WRAPPER
+    ============================================= */
+    section {
+      position: relative;
+      z-index: 10;
+      padding: 6rem 5%;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+
+    .section-eyebrow {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 5px;
+      color: var(--neon-red);
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+
+    .section-title {
+      font-family: 'Bebas Neue', cursive;
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      letter-spacing: 3px;
+      color: var(--manga-white);
+    }
+
+    .section-title .red { color: var(--neon-red); }
+
+    .divider {
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--crimson), var(--neon-red));
+      margin: 1rem auto 0;
+    }
+
+    /* =============================================
+       SENSITIVITY CARDS
+    ============================================= */
+    #sensi { background: linear-gradient(180deg, transparent, rgba(139,0,0,0.04) 50%, transparent); }
+
+    .device-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .sensi-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+      transition: transform 0.35s, box-shadow 0.35s;
+    }
+
+    .sensi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--crimson), var(--neon-red), var(--crimson));
+    }
+
+    .sensi-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.7);
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, rgba(139,0,0,0.3), rgba(0,0,0,0.4));
+      padding: 1.2rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-device {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 1.8rem;
+      color: var(--neon-red);
+    }
+
+    .card-badge {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 2px;
+      color: var(--manga-white);
+      background: var(--crimson);
+      padding: 3px 8px;
+      border-radius: 2px;
+    }
+
+    .card-body { padding: 1.2rem 1.5rem; }
+
+    .sensi-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.55rem 0;
+      border-bottom: 1px solid rgba(139,0,0,0.12);
+    }
+
+    .sensi-row:last-child { border-bottom: none; }
+
+    .row-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .row-value {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--neon-red);
+      background: rgba(100,0,0,0.12);
+      border: 1px solid rgba(100,0,0,0.4);
+      padding: 3px 14px;
+      border-radius: 2px;
+      min-width: 60px;
+      text-align: center;
+    }
+
+    /* =============================================
+       HUD SECTION
+    ============================================= */
+    #hud { background: rgba(5,5,5,0.7); }
+
+    .hud-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    .hud-info h3 {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 1.6rem;
+      color: var(--manga-white);
+      letter-spacing: 2px;
+      margin-bottom: 1rem;
+    }
+
+    .hud-info p {
+      color: var(--text-dim);
+      line-height: 1.8;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+
+    .hud-tips { margin-top: 1.5rem; }
+
+    .tip-item {
+      display: flex;
+      gap: 0.8rem;
+      align-items: flex-start;
+      padding: 0.7rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tip-icon {
+      color: var(--neon-red);
+      font-size: 0.85rem;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .tip-text {
+      font-size: 0.88rem;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    .hud-showcase {
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      gap: 1rem;
+      height: 400px;
+    }
+
+    /* Placeholder zones for user images */
+    .hud-placeholder {
+      background: rgba(12,0,0,0.8);
+      border: 1px dashed rgba(139,0,0,0.5);
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: border-color 0.3s, background 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hud-placeholder:hover {
+      border-color: var(--neon-red);
+      background: rgba(139,0,0,0.08);
+    }
+
+    .hud-placeholder i {
+      font-size: 1.5rem;
+      color: rgba(139,0,0,0.5);
+    }
+
+    .hud-placeholder span {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 2px;
+      color: rgba(139,0,0,0.6);
+      text-transform: uppercase;
+    }
+
+    /* =============================================
+       DPI SECTION
+    ============================================= */
+    #dpi { background: linear-gradient(180deg, transparent, rgba(139,0,0,0.04) 50%, transparent); }
+
+    .dpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.2rem;
+    }
+
+    .dpi-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1.8rem 1.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.35s, box-shadow 0.35s;
+    }
+
+    .dpi-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 2px;
+      background: var(--neon-red);
+      box-shadow: 0 0 10px var(--neon-glow);
+      transition: width 0.4s;
+    }
+
+    .dpi-card:hover::after { width: 100%; }
+
+    .dpi-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 16px 36px rgba(0,0,0,0.6);
+    }
+
+    .dpi-device {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 2.2rem;
+      color: var(--neon-red);
+    }
+
+    .dpi-label {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 3px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+
+    .dpi-val-box {
+      background: rgba(139,0,0,0.1);
+      border: 1px solid rgba(139,0,0,0.3);
+      border-radius: 3px;
+      padding: 0.7rem 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .dpi-val-label {
+      font-size: 0.62rem;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .dpi-val-num {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.2rem;
+      color: var(--manga-white);
+      font-weight: 700;
+    }
+
+    /* =============================================
+       PAID / LOCKED SECTION
+    ============================================= */
+    #paid { background: rgba(5,5,5,0.8); }
+
+    .locked-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .locked-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(139,0,0,0.5);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+      transition: transform 0.35s, box-shadow 0.35s;
+    }
+
+    .locked-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 30px rgba(139,0,0,0.35);
+    }
+
+    .locked-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(4px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      z-index: 5;
+      transition: background 0.3s;
+    }
+
+    .locked-card:hover .locked-overlay { background: rgba(0,0,0,0.4); }
+
+    .lock-icon {
+      font-size: 2rem;
+      color: var(--neon-red);
+      animation: lockPulse 2.5s ease-in-out infinite;
+    }
+
+    @keyframes lockPulse {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 1; transform: scale(1.08); }
+    }
+
+    .locked-text {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 3px;
+      color: var(--neon-red);
+      text-transform: uppercase;
+    }
+
+    .locked-sub {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+
+    /* locked card contents (blurred behind overlay) */
+    .locked-content { padding: 1.5rem; filter: blur(3px); user-select: none; }
+
+    .locked-title {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 1.5rem;
+      color: var(--neon-red);
+      margin-bottom: 0.5rem;
+      letter-spacing: 2px;
+    }
+
+    .locked-desc {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    .locked-tag {
+      display: inline-block;
+      margin-top: 0.8rem;
+      padding: 4px 10px;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 2px;
+      border: 1px solid var(--crimson);
+      color: var(--crimson);
+    }
+
+    /* =============================================
+       CONTACT SECTION
+    ============================================= */
+    #contact { background: linear-gradient(180deg, transparent, rgba(139,0,0,0.05)); }
+
+    .contact-desc {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 1rem;
+      line-height: 1.7;
+      max-width: 540px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .social-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .social-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.85rem 1.8rem;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text-dim);
+      text-decoration: none;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border-radius: 2px;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .social-btn i { font-size: 1rem; transition: transform 0.3s; }
+
+    .social-btn:hover {
+      border-color: var(--neon-red);
+      color: var(--neon-red);
+      transform: translateY(-3px);
+    }
+
+    .social-btn:hover i { transform: scale(1.2); }
+
+    /* =============================================
+       FOOTER
+    ============================================= */
+    footer {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 2rem 5%;
+      border-top: 1px solid var(--border);
+      background: rgba(3,3,3,0.95);
+    }
+
+    .footer-logo {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 1.4rem;
+      letter-spacing: 4px;
+      color: var(--neon-red);
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-copy {
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      color: rgba(139,0,0,0.5);
+      text-transform: uppercase;
+    }
+
+    /* =============================================
+       SCROLL REVEAL
+    ============================================= */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* =============================================
+       RESPONSIVE
+    ============================================= */
+    @media (max-width: 900px) {
+      .hud-layout { grid-template-columns: 1fr; }
+      .hud-showcase { height: 300px; grid-template-rows: 1fr 1fr; }
+    }
+
+    @media (max-width: 680px) {
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .hero-stats { gap: 1.5rem; }
+      .stat-val { font-size: 1.4rem; }
+    }
+
+    @media (max-width: 420px) {
+      .hero-title { font-size: 2.8rem; }
+      .hero-stats { flex-wrap: wrap; gap: 1rem; }
+      .social-btn { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Atmospheric layers -->
+  <div class="side-art"></div>
+  <div class="vignette"></div>
+
+  <!-- Particle canvas -->
+  <canvas id="particles-canvas"></canvas>
+
+  <!-- ==================== NAVIGATION ==================== -->
+  <nav>
+    <!-- EDIT: Change logo text here -->
+    <div class="nav-logo">SPARK <span>X</span> CLUTCH</div>
+
+    <ul class="nav-links">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#sensi">Sensi</a></li>
+      <li><a href="#hud">HUD</a></li>
+      <li><a href="#dpi">DPI</a></li>
+      <li><a href="#paid">Paid Settings</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+
+    <!-- Music toggle -->
+    <button class="music-btn" id="musicBtn" title="Toggle Music">
+      <i class="fas fa-music"></i>
+    </button>
+
+    <!-- Hamburger for mobile -->
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#home"   onclick="closeMobile()">Home</a>
+    <a href="#sensi"  onclick="closeMobile()">Sensi</a>
+    <a href="#hud"    onclick="closeMobile()">HUD</a>
+    <a href="#dpi"    onclick="closeMobile()">DPI</a>
+    <a href="#paid"   onclick="closeMobile()">Paid Settings</a>
+    <a href="#contact" onclick="closeMobile()">Contact</a>
+  </div>
+
+  <!-- ==================== HERO ==================== -->
+  <section id="home">
+    <div class="speed-lines"></div>
+    <div class="hero-bg-glow"></div>
+
+    <div class="hero-content">
+      <!-- EDIT: Change eyebrow tag -->
+      <div class="hero-tag">&#9670; Free Fire Sensitivity Guide &#9670;</div>
+
+      <!-- EDIT: Main heading -->
+      <h1 class="hero-title">
+        MASTER THE
+        <span class="highlight">HEADSHOT</span>
+      </h1>
+
+      <!-- EDIT: Subtitle -->
+      <p class="hero-sub">
+        Best Free Fire sensitivity settings for smooth gameplay, drag headshots and device optimization.
+      </p>
+
+      <a href="#sensi" class="hero-cta">
+        <span><i class="fas fa-crosshairs"></i>&nbsp; View Sensitivity</span>
+      </a>
+
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="stat-val">200</div>
+          <div class="stat-label">Max Sensi</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val">4</div>
+          <div class="stat-label">Device Profiles</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val">PRO</div>
+          <div class="stat-label">Tier Settings</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SENSITIVITY ==================== -->
+  <section id="sensi">
+    <div class="section-header reveal">
+      <div class="section-eyebrow">&#9670; SENSITIVITY SETTINGS &#9670;</div>
+      <h2 class="section-title">CHOOSE YOUR <span class="red">DEVICE</span></h2>
+      <div class="divider"></div>
+    </div>
+
+    <div class="device-grid">
+
+      <!-- ===== 2GB CARD ===== -->
+      <div class="sensi-card reveal">
+        <div class="card-header">
+          <div class="card-device">2GB</div>
+          <div class="card-badge">BUDGET</div>
+        </div>
+        <div class="card-body">
+          <div class="sensi-row"><span class="row-label">General</span>     <span class="row-value">155</span></div>
+          <div class="sensi-row"><span class="row-label">Red Dot</span>     <span class="row-value">81</span></div>
+          <div class="sensi-row"><span class="row-label">2X Scope</span>    <span class="row-value">111</span></div>
+          <div class="sensi-row"><span class="row-label">4X Scope</span>    <span class="row-value">140</span></div>
+          <div class="sensi-row"><span class="row-label">Sniper Scope</span><span class="row-value">123</span></div>
+          <div class="sensi-row"><span class="row-label">Free Look</span>   <span class="row-value">200</span></div>
+        </div>
+      </div>
+
+      <!-- ===== 4GB CARD ===== -->
+      <div class="sensi-card reveal">
+        <div class="card-header">
+          <div class="card-device">4GB</div>
+          <div class="card-badge">MID-TIER</div>
+        </div>
+        <div class="card-body">
+          <div class="sensi-row"><span class="row-label">General</span>     <span class="row-value">142</span></div>
+          <div class="sensi-row"><span class="row-label">Red Dot</span>     <span class="row-value">160</span></div>
+          <div class="sensi-row"><span class="row-label">2X Scope</span>    <span class="row-value">107</span></div>
+          <div class="sensi-row"><span class="row-label">4X Scope</span>    <span class="row-value">147</span></div>
+          <div class="sensi-row"><span class="row-label">Sniper Scope</span><span class="row-value">79</span></div>
+          <div class="sensi-row"><span class="row-label">Free Look</span>   <span class="row-value">109</span></div>
+        </div>
+      </div>
+
+      <!-- ===== 6GB CARD ===== -->
+      <div class="sensi-card reveal">
+        <div class="card-header">
+          <div class="card-device">6GB</div>
+          <div class="card-badge">HIGH-END</div>
+        </div>
+        <div class="card-body">
+          <div class="sensi-row"><span class="row-label">General</span>     <span class="row-value">167</span></div>
+          <div class="sensi-row"><span class="row-label">Red Dot</span>     <span class="row-value">0</span></div>
+          <div class="sensi-row"><span class="row-label">2X Scope</span>    <span class="row-value">112</span></div>
+          <div class="sensi-row"><span class="row-label">4X Scope</span>    <span class="row-value">102</span></div>
+          <div class="sensi-row"><span class="row-label">Sniper Scope</span><span class="row-value">98</span></div>
+          <div class="sensi-row"><span class="row-label">Free Look</span>   <span class="row-value">106</span></div>
+        </div>
+      </div>
+
+      <!-- ===== 8GB CARD ===== -->
+      <div class="sensi-card reveal">
+        <div class="card-header">
+          <div class="card-device">8GB</div>
+          <div class="card-badge">ELITE</div>
+        </div>
+        <div class="card-body">
+          <div class="sensi-row"><span class="row-label">General</span>     <span class="row-value">112</span></div>
+          <div class="sensi-row"><span class="row-label">Red Dot</span>     <span class="row-value">35</span></div>
+          <div class="sensi-row"><span class="row-label">2X Scope</span>    <span class="row-value">200</span></div>
+          <div class="sensi-row"><span class="row-label">4X Scope</span>    <span class="row-value">100</span></div>
+          <div class="sensi-row"><span class="row-label">Sniper Scope</span><span class="row-value">200</span></div>
+          <div class="sensi-row"><span class="row-label">Free Look</span>   <span class="row-value">200</span></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== HUD ==================== -->
+  <section id="hud">
+    <div class="section-header reveal">
+      <div class="section-eyebrow">&#9670; HUD LAYOUT &#9670;</div>
+      <h2 class="section-title">OPTIMIZE YOUR <span class="red">HUD</span></h2>
+      <div class="divider"></div>
+    </div>
+
+    <div class="hud-layout">
+      <div class="hud-info reveal">
+        <h3>WHAT IS HUD?</h3>
+        <p>
+          HUD (Heads-Up Display) refers to the button layout on your screen during gameplay.
+          A well-configured HUD directly impacts your reaction speed, aim control, and overall combat performance.
+        </p>
+        <p>
+          Position your fire button where your thumb rests naturally for instant trigger response.
+          Keep scope and crouch buttons within comfortable reach to enable smooth drag-headshots.
+        </p>
+
+        <!-- EDIT: Add / remove tips as needed -->
+        <div class="hud-tips">
+          <div class="tip-item">
+            <i class="fas fa-crosshairs tip-icon"></i>
+            <div class="tip-text">Place the fire button at the right edge — lower thumb position = faster drag shots.</div>
+          </div>
+          <div class="tip-item">
+            <i class="fas fa-expand-arrows-alt tip-icon"></i>
+            <div class="tip-text">Keep scope & aim buttons on the left side for independent control.</div>
+          </div>
+          <div class="tip-item">
+            <i class="fas fa-arrows-alt tip-icon"></i>
+            <div class="tip-text">Use 3-finger or 4-finger claw grip for maximum movement + aim control.</div>
+          </div>
+          <div class="tip-item">
+            <i class="fas fa-tachometer-alt tip-icon"></i>
+            <div class="tip-text">Reduce HUD button size slightly to get a wider field of view.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-showcase reveal">
+        <!-- HUD Screenshot — your uploaded image -->
+        <div class="hud-placeholder" style="padding:0;overflow:hidden;border-style:solid;border-color:rgba(139,0,0,0.6);">
+          <img src="hud1.jpg" alt="Free Fire HUD Layout"
+               style="width:100%;height:100%;object-fit:cover;display:block;border-radius:3px;" />
+        </div>
+        <!-- Slot 2 — add another image here later -->
+        <div class="hud-placeholder">
+          <i class="fas fa-image"></i>
+          <span>Add HUD Screenshot 2</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== DPI ==================== -->
+  <section id="dpi">
+    <div class="section-header reveal">
+      <div class="section-eyebrow">&#9670; DPI SETTINGS &#9670;</div>
+      <h2 class="section-title">DEVICE <span class="red">DPI</span> GUIDE</h2>
+      <div class="divider"></div>
+    </div>
+
+    <!-- EDIT: Change DPI values inside .dpi-val-num -->
+    <div class="dpi-grid">
+
+      <div class="dpi-card reveal">
+        <div class="dpi-device">2GB</div>
+        <div class="dpi-label">Budget Device</div>
+        <div class="dpi-val-box">
+          <div class="dpi-val-label">Recommended DPI</div>
+          <div class="dpi-val-num">800</div>
+        </div>
+        <div class="dpi-val-box">
+          <div class="dpi-val-label">Min / Max</div>
+          <div class="dpi-val-num">600 – 900</div>
+        </div>
+      </div>
+
+      <div class="dpi-card reveal">
+        <div class="dpi-device">4GB</div>
+        <div class="dpi-label">Mid-Tier Device</div>
+        <div class="dpi-val-box">
+          <div class="dpi-val-label">Recommended DPI</div>
+          <div class="dpi-val-num">1000</div>
+        </div>
+        <div class="dpi-val-box">
+          <div class="dpi-val-label">Min / Max</div>
+          <div class="dpi-val-num">800 – 1200</div>
+        </div>
+      </div>
+
+      <div class="dpi-card reveal">
+        <div class="dpi-device">6GB</div>
+        <div class="dpi-label">High-End Device</div>
+        <div class="dpi-val-box">
+          <div class="dpi-val-label">Recommended DPI</div>
+          <div class="dpi-val-num">1200</div>
+        </div>
+        <div class="dpi-val-box">
+          <div class="dpi-val-label">Min / Max</div>
+          <div class="dpi-val-num">1000 – 1400</div>
+        </div>
+      </div>
+
+      <div class="dpi-card reveal">
+        <div class="dpi-device">8GB</div>
+        <div class="dpi-label">Elite Device</div>
+        <div class="dpi-val-box">
+          <div class="dpi-val-label">Recommended DPI</div>
+          <div class="dpi-val-num">1400</div>
+        </div>
+        <div class="dpi-val-box">
+          <div class="dpi-val-label">Min / Max</div>
+          <div class="dpi-val-num">1200 – 1600</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== PAID SETTINGS ==================== -->
+  <section id="paid">
+    <div class="section-header reveal">
+      <div class="section-eyebrow">&#9670; EXCLUSIVE ACCESS &#9670;</div>
+      <h2 class="section-title">PAID <span class="red">PRO</span> SETTINGS</h2>
+      <div class="divider"></div>
+    </div>
+
+    <div class="locked-grid">
+
+      <!-- EDIT: Customize card titles & descriptions -->
+      <div class="locked-card reveal">
+        <div class="locked-content">
+          <div class="locked-title">Pro Headshot Settings</div>
+          <div class="locked-desc">Ultra-precise sensitivity tuned for consistent drag headshots in ranked matches. Device-specific optimization included.</div>
+          <div class="locked-tag">PREMIUM PACK</div>
+        </div>
+        <div class="locked-overlay">
+          <i class="fas fa-lock lock-icon"></i>
+          <div class="locked-text">LOCKED</div>
+          <div class="locked-sub">Contact to Unlock</div>
+        </div>
+      </div>
+
+      <div class="locked-card reveal">
+        <div class="locked-content">
+          <div class="locked-title">VIP Sensitivity Pack</div>
+          <div class="locked-desc">Full package covering all scopes, free look and movement sensitivity. Refined over 500+ hours of gameplay testing.</div>
+          <div class="locked-tag">VIP ONLY</div>
+        </div>
+        <div class="locked-overlay">
+          <i class="fas fa-lock lock-icon"></i>
+          <div class="locked-text">LOCKED</div>
+          <div class="locked-sub">Contact to Unlock</div>
+        </div>
+      </div>
+
+      <div class="locked-card reveal">
+        <div class="locked-content">
+          <div class="locked-title">Tournament Settings</div>
+          <div class="locked-desc">Settings used in competitive tournaments. Anti-recoil patterns, burst control configs and clutch-mode HUD layout.</div>
+          <div class="locked-tag">TOURNAMENT TIER</div>
+        </div>
+        <div class="locked-overlay">
+          <i class="fas fa-lock lock-icon"></i>
+          <div class="locked-text">LOCKED</div>
+          <div class="locked-sub">Contact to Unlock</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== CONTACT ==================== -->
+  <section id="contact">
+    <div class="section-header reveal">
+      <div class="section-eyebrow">&#9670; REACH OUT &#9670;</div>
+      <h2 class="section-title">GET IN <span class="red">TOUCH</span></h2>
+      <div class="divider"></div>
+    </div>
+
+    <!-- EDIT: Keep this text exactly as requested -->
+    <p class="contact-desc reveal">
+      Need custom sensitivity or paid settings? Contact me below.
+    </p>
+
+    <div class="social-grid reveal">
+      <a href="https://www.instagram.com/chinnuuff_?igsh=MTAybXhrZ2N2cm1kYQ==" class="social-btn" target="_blank">
+        <i class="fab fa-instagram"></i> Instagram
+      </a>
+      <a href="https://youtube.com/@chinnuu_ff?si=bwtg5znmsFD1GrYi" class="social-btn" target="_blank">
+        <i class="fab fa-youtube"></i> YouTube
+      </a>
+      <a href="https://discord.com/users/spark777ff" class="social-btn" target="_blank">
+        <i class="fab fa-discord"></i> @spark777ff
+      </a>
+      <a href="https://wa.me/919908529489" class="social-btn" target="_blank">
+        <i class="fab fa-whatsapp"></i> WhatsApp
+      </a>
+    </div>
+  </section>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer>
+    <div class="footer-logo">SPARK X CLUTCH</div>
+    <div class="footer-copy">&#169; 2025 Spark X Clutch &nbsp;&#183;&nbsp; Free Fire Sensitivity Guide</div>
+  </footer>
+
+  <!-- =============================================
+       JAVASCRIPT
+  ============================================= -->
+  <script>
+    /* --------------------------------------------------
+       PARTICLES
+    -------------------------------------------------- */
+    const canvas = document.getElementById('particles-canvas');
+    const ctx    = canvas.getContext('2d');
+    let W, H, particles = [];
+
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    function createParticle() {
+      return {
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: Math.random() * 1.5 + 0.3,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        alpha: Math.random() * 0.6 + 0.1,
+        color: Math.random() > 0.6
+          ? `rgba(255,26,26,`
+          : `rgba(139,0,0,`
+      };
+    }
+
+    for (let i = 0; i < 90; i++) particles.push(createParticle());
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, W, H);
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0) p.x = W;
+        if (p.x > W) p.x = 0;
+        if (p.y < 0) p.y = H;
+        if (p.y > H) p.y = 0;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = p.color + p.alpha + ')';
+        ctx.fill();
+      });
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    /* --------------------------------------------------
+       HAMBURGER MENU
+    -------------------------------------------------- */
+    const hamburger   = document.getElementById('hamburger');
+    const mobileMenu  = document.getElementById('mobileMenu');
+
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      mobileMenu.classList.toggle('open');
+    });
+
+    function closeMobile() {
+      hamburger.classList.remove('open');
+      mobileMenu.classList.remove('open');
+    }
+
+    /* --------------------------------------------------
+       SCROLL REVEAL
+    -------------------------------------------------- */
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    reveals.forEach(el => observer.observe(el));
+
+    /* --------------------------------------------------
+       MUSIC TOGGLE
+       NOTE: Replace the src URL below with an actual
+       Free Fire background music file link (mp3/ogg).
+       You can host it on GitHub, Google Drive, etc.
+    -------------------------------------------------- */
+    const musicBtn = document.getElementById('musicBtn');
+
+    // Free Fire OST — Sinister (2018 Theme) from your Google Drive
+    // Google Drive direct stream URL (file ID: 1j7naBy7p0TfF0dbHp9qbjLpqdVLL94h8)
+    const audio = new Audio('https://drive.google.com/uc?export=download&id=1j7naBy7p0TfF0dbHp9qbjLpqdVLL94h8');
+    audio.loop   = true;
+    audio.volume = 0.4;
+    // NOTE: If music doesn't play, make sure the Google Drive file is set to "Anyone with the link can view"
+
+    let playing = false;
+
+    musicBtn.addEventListener('click', () => {
+      if (playing) {
+        audio.pause();
+        musicBtn.classList.remove('playing');
+        musicBtn.innerHTML = '<i class="fas fa-music"></i>';
+        playing = false;
+      } else {
+        audio.play().catch(() => {
+          musicBtn.title = 'Music blocked by browser. Click again after page loads.';
+        });
+        musicBtn.classList.add('playing');
+        musicBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        playing = true;
+      }
+    });
+
+    /* Auto-play attempt on first interaction (browsers block autoplay without gesture) */
+    window.addEventListener('click', () => {
+      if (!playing) {
+        audio.play().then(() => {
+          musicBtn.classList.add('playing');
+          musicBtn.innerHTML = '<i class="fas fa-pause"></i>';
+          playing = true;
+        }).catch(() => {});
+      }
+    }, { once: true });
+
+    /* --------------------------------------------------
+       PARALLAX — subtle hero bg on mouse move
+    -------------------------------------------------- */
+    document.addEventListener('mousemove', (e) => {
+      const x = (e.clientX / window.innerWidth  - 0.5) * 20;
+      const y = (e.clientY / window.innerHeight - 0.5) * 10;
+      const glow = document.querySelector('.hero-bg-glow');
+      if (glow) glow.style.transform = `translateY(-50%) translate(${x}px, ${y}px)`;
+    });
+  </script>
+</body>
+</html>
